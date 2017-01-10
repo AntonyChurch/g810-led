@@ -84,7 +84,7 @@ bool Keyboard::detach() {
 	int r;
 	r = libusb_release_interface(dev_handle, 1);
 	if(r!=0) return false;
-	if(m_isKernellDetached==true) {
+	if(m_scriptingMode==false && m_isKernellDetached==true) {
 		libusb_attach_kernel_driver(dev_handle, 1);
 		m_isKernellDetached = false;
 	}
