@@ -1101,8 +1101,8 @@ bool Keyboard::setFXCWaveKeys(uint8_t speed) {
 }
 
 bool Keyboard::setScriptingMode(bool mode) {
-	if(m_scriptingMode == mode) return true;
 	m_scriptingMode = mode;
+	if (mode == false) m_isKernellDetached = true;
 	attach();
 	detach();
 	return true;
