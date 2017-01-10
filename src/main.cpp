@@ -45,6 +45,9 @@ void usage() {
 	cout<<"  -p  profilefile :\t\tLoad a profile from a file"<<endl;
 	cout<<"  -pp profilepipe :\t\tLoad a profile from stdin"<<endl;
 	cout<<""<<endl;
+	cout<<"  -script-on :\t\t\tEnable scripting mode"<<endl;
+	cout<<"  -script-off :\t\t\tDisable scripting mode"<<endl;
+	cout<<""<<endl;
 	cout<<"  -h | --help :\t\t\tthis help message"<<endl;
 	cout<<"  -lk | --list-keys :\t\tList keys in groups"<<endl;
 	cout<<""<<endl;
@@ -234,8 +237,6 @@ int setFXColor(string color, bool keys, bool logo) {
 		lg_kbd.attach();
 		lg_kbd.setGroupKeys(Keyboard::KeyGroup::indicators, colors);
 		lg_kbd.commit();
-		lg_kbd.detach();
-		lg_kbd.attach();
 		if(keys) lg_kbd.setFXColorKeys(colors);
 		if(logo) lg_kbd.setFXColorLogo(colors);
 		lg_kbd.detach();
@@ -310,6 +311,12 @@ int setFXCWave(string speed, bool keys, bool logo) {
 		return 0;
 	}
 	return 1;
+}
+
+int setScriptMode(bool mode) {
+	Keyboard lg_kbd;
+	lg_kbd.setScriptingMode(mode);
+	return 0;
 }
 
 int parseProfile(istream &is) {
@@ -401,8 +408,6 @@ int parseProfile(istream &is) {
 				if (lg_kbd.parseColor(line, colors) == true) {
 					lg_kbd.setGroupKeys(Keyboard::KeyGroup::indicators, colors);
 					lg_kbd.commit();
-					lg_kbd.detach();
-					lg_kbd.attach();
 					if(fxkeys) lg_kbd.setFXColorKeys(colors);
 					if(fxlogo) lg_kbd.setFXColorLogo(colors);
 				} else cout<<"Error on line "<<lineCount<<" : "<<line<<"\n";
@@ -418,8 +423,6 @@ int parseProfile(istream &is) {
 					ind = line.find(" ");
 					line = line.substr(ind + 1, 2);
 					if (lg_kbd.parseSpeed(line.substr(0, 2), speedValue) == true) {
-						lg_kbd.detach();
-						lg_kbd.attach();
 						if(fxkeys) lg_kbd.setFXBreathingKeys(colors, speedValue);
 						if(fxlogo) lg_kbd.setFXBreathingLogo(colors, speedValue);
 					} else cout<<"Error on line "<<lineCount<<" : "<<line<<"\n";
@@ -427,32 +430,24 @@ int parseProfile(istream &is) {
 			} else if (line.substr(0,5) == "cycle") {
 				line = line.substr(6);
 				if (lg_kbd.parseSpeed(line.substr(0, 2), speedValue) == true) {
-					lg_kbd.detach();
-					lg_kbd.attach();
 					if(fxkeys) lg_kbd.setFXColorCycleKeys(speedValue);
 					if(fxlogo) lg_kbd.setFXColorCycleLogo(speedValue);
 				} else cout<<"Error on line "<<lineCount<<" : "<<line<<"\n";
 			} else if (line.substr(0,5) == "hwave") {
 				line = line.substr(6);
 				if (lg_kbd.parseSpeed(line.substr(0, 2), speedValue) == true) {
-					lg_kbd.detach();
-					lg_kbd.attach();
 					if(fxkeys) lg_kbd.setFXHWaveKeys(speedValue);
 					if(fxkeys && fxlogo) lg_kbd.setFXColorCycleLogo(speedValue);
 				} else cout<<"Error on line "<<lineCount<<" : "<<line<<"\n";
 			} else if (line.substr(0,5) == "vwave") {
 				line = line.substr(6);
 				if (lg_kbd.parseSpeed(line.substr(0, 2), speedValue) == true) {
-					lg_kbd.detach();
-					lg_kbd.attach();
 					if(fxkeys) lg_kbd.setFXVWaveKeys(speedValue);
 					if(fxkeys && fxlogo) lg_kbd.setFXColorCycleLogo(speedValue);
 				} else cout<<"Error on line "<<lineCount<<" : "<<line<<"\n";
 			} else if (line.substr(0,5) == "cwave") {
 				line = line.substr(6);
 				if (lg_kbd.parseSpeed(line.substr(0, 2), speedValue) == true) {
-					lg_kbd.detach();
-					lg_kbd.attach();
 					if(fxkeys) lg_kbd.setFXCWaveKeys(speedValue);
 					if(fxkeys && fxlogo) lg_kbd.setFXColorCycleLogo(speedValue);
 				} else cout<<"Error on line "<<lineCount<<" : "<<line<<"\n";
@@ -510,15 +505,17 @@ int main(int argc, char *argv[]) {
 		else if (argCmd == "-fx-hwave" && argc == 3)          return setFXHWave(argv[2], true, true);
 		else if (argCmd == "-fx-vwave" && argc == 3)          return setFXVWave(argv[2], true, true);
 		else if (argCmd == "-fx-cwave" && argc == 3)          return setFXCWave(argv[2], true, true);
-		else if (argCmd == "-fxk-color" && argc == 3)          return setFXColor(argv[2], true, false);
-		else if (argCmd == "-fxk-breathing" && argc == 4)      return setFXBreathing(argv[2], argv[3], true, false);
-		else if (argCmd == "-fxk-cycle" && argc == 3)          return setFXColorCycle(argv[2], true, false);
-		else if (argCmd == "-fxk-hwave" && argc == 3)          return setFXHWave(argv[2], true, false);
-		else if (argCmd == "-fxk-vwave" && argc == 3)          return setFXVWave(argv[2], true, false);
-		else if (argCmd == "-fxk-cwave" && argc == 3)          return setFXCWave(argv[2], true, false);
-		else if (argCmd == "-fxl-color" && argc == 3)          return setFXColor(argv[2], false, true);
-		else if (argCmd == "-fxl-breathing" && argc == 4)      return setFXBreathing(argv[2], argv[3], false, true);
-		else if (argCmd == "-fxl-cycle" && argc == 3)          return setFXColorCycle(argv[2], false, true);
+		else if (argCmd == "-fxk-color" && argc == 3)         return setFXColor(argv[2], true, false);
+		else if (argCmd == "-fxk-breathing" && argc == 4)     return setFXBreathing(argv[2], argv[3], true, false);
+		else if (argCmd == "-fxk-cycle" && argc == 3)         return setFXColorCycle(argv[2], true, false);
+		else if (argCmd == "-fxk-hwave" && argc == 3)         return setFXHWave(argv[2], true, false);
+		else if (argCmd == "-fxk-vwave" && argc == 3)         return setFXVWave(argv[2], true, false);
+		else if (argCmd == "-fxk-cwave" && argc == 3)         return setFXCWave(argv[2], true, false);
+		else if (argCmd == "-fxl-color" && argc == 3)         return setFXColor(argv[2], false, true);
+		else if (argCmd == "-fxl-breathing" && argc == 4)     return setFXBreathing(argv[2], argv[3], false, true);
+		else if (argCmd == "-fxl-cycle" && argc == 3)         return setFXColorCycle(argv[2], false, true);
+		else if (argCmd == "-script-on")          						return setScriptMode(true);
+		else if (argCmd == "-script-off")          						return setScriptMode(false);
 	}
 	usage();
 	return 1;

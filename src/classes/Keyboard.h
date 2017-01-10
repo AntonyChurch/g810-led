@@ -61,12 +61,14 @@ class Keyboard {
 		bool setFXHWaveKeys(uint8_t speed);
 		bool setFXVWaveKeys(uint8_t speed);
 		bool setFXCWaveKeys(uint8_t speed);
+		bool setScriptingMode(bool mode);
 		
 		
 	private:
 		
 		bool m_isAttached = false;
 		bool m_isKernellDetached = false;
+		bool m_scriptingMode = false;
 		KeyboardProtocol kbdProtocol = KeyboardProtocol::generic;
 		libusb_device **devs;
 		libusb_device_handle *dev_handle;
